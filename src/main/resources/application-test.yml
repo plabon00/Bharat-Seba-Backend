@@ -1,0 +1,17 @@
+spring:
+  datasource:
+    url: jdbc:tc:postgresql:15-alpine:///test_db
+    driver-class-name: org.testcontainers.jdbc.ContainerDatabaseDriver
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: true
+  flyway:
+    enabled: true
+
+app:
+  jwt:
+    secret: testsecretwhichislongenoughforhs256andneedsmorecharacters
+    expiration-ms: 3600000
+  cors:
+    allowed-origins: "*"
