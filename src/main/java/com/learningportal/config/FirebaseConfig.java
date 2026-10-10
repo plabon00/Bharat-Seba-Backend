@@ -21,9 +21,13 @@ public class FirebaseConfig {
         try {
             if (FirebaseApp.getApps().isEmpty()) {
                 InputStream serviceAccount;
-                
                 if (firebaseCredentials != null && !firebaseCredentials.trim().isEmpty()) {
-                    serviceAccount = new ByteArrayInputStream(firebaseCredentials.getBytes());
+                    String creds = firebaseCredentials.trim();
+                    if (!creds.startsWith("{")) {
+                        // Decode base64 if it's not raw JSON
+                        creds = new String(java.util.Base64.getDecoder().decode(creds));
+                    }
+                    serviceAccount = new ByteArrayInputStream(creds.getBytes());
                 } else {
                     serviceAccount = getClass().getClassLoader().getResourceAsStream("firebase-service-account.json");
                 }
