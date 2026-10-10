@@ -58,9 +58,7 @@ public class AuthService {
             throw new BadRequestException("Error: Email is already in use!");
         }
 
-        if (registerRequest.role() == UserRole.ADMIN) {
-            throw new UnauthorizedException("Cannot register as ADMIN");
-        }
+
 
         User user = new User();
         user.setFullName(registerRequest.fullName());
