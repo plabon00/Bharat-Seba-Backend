@@ -67,3 +67,4 @@ mvn test
 - All secure endpoints require a valid JWT Bearer token.
 - `ADMIN` role cannot be self-registered via public APIs.
 # Bharat-Seba-Backend
+# Bharat-Seba-Backend
