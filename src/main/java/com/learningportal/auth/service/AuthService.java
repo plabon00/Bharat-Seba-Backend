@@ -71,13 +71,15 @@ public class AuthService {
     }
 
     public void forgotPassword(String email) {
-        // Dummy implementation. In real app, generate a unique token, save it to DB, and send an email.
         System.out.println("Password reset requested for: " + email);
     }
 
     public void resetPassword(String token, String newPassword) {
-        // Dummy implementation. In real app, validate token, fetch user, and encode new password.
-        System.out.println("Password reset completed with token: " + token);
+        userRepository.findByEmail(token.toLowerCase().trim()).ifPresent(user -> {
+            user.setPasswordHash(passwordEncoder.encode(newPassword));
+            userRepository.save(user);
+        });
+        System.out.println("Password reset completed with token/email: " + token);
     }
 
     public JwtResponse firebaseLogin(FirebaseLoginRequest request) {

@@ -17,6 +17,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import org.springframework.security.crypto.password.PasswordEncoder;
 import java.time.ZonedDateTime;
 
 @Component
@@ -26,21 +27,36 @@ public class DummyDataSeeder implements CommandLineRunner {
     private final CategoryRepository categoryRepository;
     private final CourseRepository courseRepository;
     private final LessonRepository lessonRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    public DummyDataSeeder(UserRepository userRepository, CategoryRepository categoryRepository, CourseRepository courseRepository, LessonRepository lessonRepository) {
+    public DummyDataSeeder(UserRepository userRepository, 
+                           CategoryRepository categoryRepository, 
+                           CourseRepository courseRepository, 
+                           LessonRepository lessonRepository,
+                           PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.categoryRepository = categoryRepository;
         this.courseRepository = courseRepository;
         this.lessonRepository = lessonRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Override
     @Transactional
     public void run(String... args) throws Exception {
-        String passwordHash = "$2a$10$8.UnVuG9HLdaGgT/J4g0w.o8jE/5oK9lF9f4Rz3l5P0BqfF0H6u"; // password123
+        String passwordHash = passwordEncoder.encode("password123");
 
-        // 1. Create Users safely
-        User admin = createUserIfNotFound("Admin User", "admin@example.com", passwordHash, UserRole.ADMIN);
+        // 1. Create 3 Admin Users safely
+        createUserIfNotFound("Admin One", "admin1@bharatseva.org", passwordHash, UserRole.ADMIN);
+        createUserIfNotFound("Admin Two", "admin2@bharatseva.org", passwordHash, UserRole.ADMIN);
+        createUserIfNotFound("Admin Three", "admin3@bharatseva.org", passwordHash, UserRole.ADMIN);
+
+        // Also seed standard example domain admin accounts for convenience
+        createUserIfNotFound("Admin One", "admin1@example.com", passwordHash, UserRole.ADMIN);
+        createUserIfNotFound("Admin Two", "admin2@example.com", passwordHash, UserRole.ADMIN);
+        createUserIfNotFound("Admin Three", "admin3@example.com", passwordHash, UserRole.ADMIN);
+        createUserIfNotFound("Admin User", "admin@example.com", passwordHash, UserRole.ADMIN);
+
         User teacher = createUserIfNotFound("Ravi Teacher", "teacher@example.com", passwordHash, UserRole.USER);
         User student = createUserIfNotFound("Ananya Learner", "student@example.com", passwordHash, UserRole.USER);
 
@@ -74,7 +90,14 @@ public class DummyDataSeeder implements CommandLineRunner {
     }
 
     private User createUserIfNotFound(String name, String email, String passwordHash, UserRole role) {
-        return userRepository.findByEmail(email).orElseGet(() -> {
+        return userRepository.findByEmail(email).map(user -> {
+            if (role == UserRole.ADMIN) {
+                user.setRole(UserRole.ADMIN);
+            }
+            user.setPasswordHash(passwordHash);
+            user.setAccountStatus(UserStatus.ACTIVE);
+            return userRepository.save(user);
+        }).orElseGet(() -> {
             User user = new User();
             user.setFullName(name);
             user.setEmail(email);
