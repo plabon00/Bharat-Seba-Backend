@@ -66,7 +66,7 @@ public class TeacherCourseService {
         course.setCourseCode(generateUniqueCourseCode());
         course.setTitle(request.title());
         course.setDescription(request.description());
-        course.setThumbnailUrl(request.thumbnailUrl());
+        course.setThumbnailUrl(StringUtils.hasText(request.thumbnailUrl()) ? request.thumbnailUrl().trim() : null);
         course.setTeacher(teacher);
         course.setCategory(category);
         course.setDifficulty(request.difficulty());
@@ -85,7 +85,9 @@ public class TeacherCourseService {
 
         if (request.title() != null) course.setTitle(request.title());
         if (request.description() != null) course.setDescription(request.description());
-        if (request.thumbnailUrl() != null) course.setThumbnailUrl(request.thumbnailUrl());
+        if (request.thumbnailUrl() != null) {
+            course.setThumbnailUrl(StringUtils.hasText(request.thumbnailUrl()) ? request.thumbnailUrl().trim() : null);
+        }
         if (request.difficulty() != null) course.setDifficulty(request.difficulty());
         if (request.categoryId() != null) {
             Category category = categoryRepository.findById(request.categoryId())

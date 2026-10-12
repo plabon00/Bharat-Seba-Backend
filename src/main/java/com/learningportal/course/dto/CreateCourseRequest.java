@@ -10,7 +10,7 @@ import java.util.UUID;
 public record CreateCourseRequest(
         @NotBlank String title,
         @NotBlank String description,
-        @URL String thumbnailUrl,
+        String thumbnailUrl,
         @NotNull UUID categoryId,
         @NotNull CourseDifficulty difficulty
 ) {}

@@ -8,7 +8,7 @@ import java.util.UUID;
 public record UpdateCourseRequest(
         String title,
         String description,
-        @URL String thumbnailUrl,
+        String thumbnailUrl,
         UUID categoryId,
         CourseDifficulty difficulty
 ) {}
