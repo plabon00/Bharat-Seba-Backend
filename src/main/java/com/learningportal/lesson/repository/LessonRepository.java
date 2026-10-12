@@ -12,4 +12,5 @@ import java.util.UUID;
 public interface LessonRepository extends JpaRepository<Lesson, UUID> {
     List<Lesson> findByCourseIdOrderByDisplayOrderAsc(UUID courseId);
     Optional<Lesson> findByIdAndCourseId(UUID id, UUID courseId);
+    void deleteByCourseId(UUID courseId);
 }

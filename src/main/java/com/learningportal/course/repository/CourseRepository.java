@@ -18,6 +18,7 @@ public interface CourseRepository extends JpaRepository<Course, UUID> {
     boolean existsByCourseCode(String courseCode);
     Page<Course> findByStatus(CourseStatus status, Pageable pageable);
     Page<Course> findByTeacherId(UUID teacherId, Pageable pageable);
+    java.util.List<Course> findByTeacherId(UUID teacherId);
     Page<Course> findByCategoryIdAndStatus(UUID categoryId, CourseStatus status, Pageable pageable);
 
     @Query("SELECT c FROM Course c WHERE c.status = :status AND (" +

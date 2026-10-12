@@ -63,6 +63,18 @@ public class AdminController {
         return ResponseEntity.ok().build();
     }
 
+    @PostMapping("/courses/{id}/hide")
+    public ResponseEntity<Void> hideCourse(@PathVariable UUID id) {
+        adminService.hideCourse(id);
+        return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("/courses/{id}")
+    public ResponseEntity<Void> deleteCourse(@PathVariable UUID id) {
+        adminService.deleteCourse(id);
+        return ResponseEntity.ok().build();
+    }
+
     @PostMapping("/categories")
     public ResponseEntity<CategoryResponse> createCategory(@Valid @RequestBody CreateCategoryRequest request) {
         return ResponseEntity.ok(adminService.createCategory(request));
@@ -93,6 +105,12 @@ public class AdminController {
             @PathVariable UUID id,
             @Valid @RequestBody UpdateUserRoleRequest request) {
         adminService.updateUserRole(id, request);
+        return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("/users/{id}")
+    public ResponseEntity<Void> deleteUser(@PathVariable UUID id) {
+        adminService.deleteUser(id);
         return ResponseEntity.ok().build();
     }
 }
