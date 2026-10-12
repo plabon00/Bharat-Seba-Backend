@@ -49,8 +49,8 @@ public class AdminService {
     public void approveCourse(UUID courseId) {
         Course course = courseRepository.findById(courseId)
                 .orElseThrow(() -> new ResourceNotFoundException("Course not found"));
-        if (course.getStatus() != CourseStatus.PENDING_REVIEW) {
-            throw new BadRequestException("Only PENDING_REVIEW courses can be approved.");
+        if (course.getStatus() != CourseStatus.PENDING_REVIEW && course.getStatus() != CourseStatus.DRAFT) {
+            throw new BadRequestException("Only PENDING_REVIEW or DRAFT courses can be approved.");
         }
         course.setStatus(CourseStatus.PUBLISHED);
         course.setPublishedAt(ZonedDateTime.now());
@@ -61,8 +61,8 @@ public class AdminService {
     public void rejectCourse(UUID courseId, RejectCourseRequest request) {
         Course course = courseRepository.findById(courseId)
                 .orElseThrow(() -> new ResourceNotFoundException("Course not found"));
-        if (course.getStatus() != CourseStatus.PENDING_REVIEW) {
-            throw new BadRequestException("Only PENDING_REVIEW courses can be rejected.");
+        if (course.getStatus() != CourseStatus.PENDING_REVIEW && course.getStatus() != CourseStatus.DRAFT) {
+            throw new BadRequestException("Only PENDING_REVIEW or DRAFT courses can be rejected.");
         }
         course.setStatus(CourseStatus.REJECTED);
         course.setRejectionReason(request.reason());

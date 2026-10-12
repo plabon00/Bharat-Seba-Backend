@@ -20,15 +20,18 @@ public record CourseResponse(
         java.time.ZonedDateTime publishedAt
 ) {
     public static CourseResponse fromEntity(Course course) {
+        String teacherName = course.getTeacher() != null ? course.getTeacher().getFullName() : "Instructor";
+        String categoryName = course.getCategory() != null ? course.getCategory().getName() : "General";
+        String categorySlug = course.getCategory() != null ? course.getCategory().getSlug() : "general";
         return new CourseResponse(
                 course.getId(),
                 course.getCourseCode(),
                 course.getTitle(),
                 course.getDescription(),
                 course.getThumbnailUrl(),
-                course.getTeacher().getFullName(),
-                course.getCategory().getName(),
-                course.getCategory().getSlug(),
+                teacherName,
+                categoryName,
+                categorySlug,
                 course.getDifficulty(),
                 course.getStatus(),
                 course.getPublishedAt()

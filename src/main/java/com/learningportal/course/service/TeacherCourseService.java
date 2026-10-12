@@ -105,11 +105,6 @@ public class TeacherCourseService {
             throw new BadRequestException("Only DRAFT or REJECTED courses can be submitted.");
         }
 
-        List<Lesson> lessons = lessonRepository.findByCourseIdOrderByDisplayOrderAsc(courseId);
-        if (lessons.isEmpty()) {
-            throw new BadRequestException("Course must have at least one lesson before submission.");
-        }
-
         course.setStatus(CourseStatus.PENDING_REVIEW);
         course.setSubmittedAt(ZonedDateTime.now());
         courseRepository.save(course);

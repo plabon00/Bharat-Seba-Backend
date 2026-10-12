@@ -29,11 +29,11 @@ public class DummyDataSeeder implements CommandLineRunner {
     private final LessonRepository lessonRepository;
     private final PasswordEncoder passwordEncoder;
 
-    public DummyDataSeeder(UserRepository userRepository, 
-                           CategoryRepository categoryRepository, 
-                           CourseRepository courseRepository, 
-                           LessonRepository lessonRepository,
-                           PasswordEncoder passwordEncoder) {
+    public DummyDataSeeder(UserRepository userRepository,
+            CategoryRepository categoryRepository,
+            CourseRepository courseRepository,
+            LessonRepository lessonRepository,
+            PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.categoryRepository = categoryRepository;
         this.courseRepository = courseRepository;
@@ -61,31 +61,44 @@ public class DummyDataSeeder implements CommandLineRunner {
         User student = createUserIfNotFound("Ananya Learner", "student@example.com", passwordHash, UserRole.USER);
 
         // 2. Create Categories safely
-        Category catMB = createCategoryIfNotFound("Money & Business", "money-business", "Budget, saving, entrepreneurship, marketing", 4);
-        Category catCom = createCategoryIfNotFound("Communication", "communication", "কথা বলা, presentation, customer handling", 3);
-        Category catDig = createCategoryIfNotFound("Digital Skills", "digital-skills", "Computer, mobile, internet, AI ও online tools", 2);
-        
+        Category catMB = createCategoryIfNotFound("Money & Business", "money-business",
+                "Budget, saving, entrepreneurship, marketing", 4);
+        Category catCom = createCategoryIfNotFound("Communication", "communication",
+                "কথা বলা, presentation, customer handling", 3);
+        Category catDig = createCategoryIfNotFound("Digital Skills", "digital-skills",
+                "Computer, mobile, internet, AI ও online tools", 2);
+
         createCategoryIfNotFound("Basic Education", "basic-education", "ভাষা, গণিত, সাধারণ জ্ঞান, digital literacy", 1);
-        createCategoryIfNotFound("Vocational Skills", "vocational-skills", "কারিগরি, repair, craft ও practical work", 5);
-        createCategoryIfNotFound("Creative Skills", "creative-skills", "Design, photography, writing, music, animation", 6);
+        createCategoryIfNotFound("Vocational Skills", "vocational-skills", "কারিগরি, repair, craft ও practical work",
+                5);
+        createCategoryIfNotFound("Creative Skills", "creative-skills", "Design, photography, writing, music, animation",
+                6);
         createCategoryIfNotFound("Life Skills", "life-skills", "সময়, অভ্যাস, teamwork, problem solving", 7);
         createCategoryIfNotFound("Career Skills", "career-skills", "CV, interview, workplace, leadership", 8);
         createCategoryIfNotFound("Small Business", "small-business", "Product, service, pricing, sales, customer", 9);
         createCategoryIfNotFound("Rural Skills", "rural-skills", "কৃষি, food processing, local production", 10);
-        createCategoryIfNotFound("Social Skills", "social-skills", "Community service, environment, civic learning", 11);
-        createCategoryIfNotFound("Advanced Academy", "advanced-academy", "Project, innovation, leadership ও creator economy", 12);
+        createCategoryIfNotFound("Social Skills", "social-skills", "Community service, environment, civic learning",
+                11);
+        createCategoryIfNotFound("Advanced Academy", "advanced-academy",
+                "Project, innovation, leadership ও creator economy", 12);
 
         // 3. Create Courses safely
-        Course course1 = createCourseIfNotFound("BS-MB-101", "ব্যক্তিগত অর্থব্যবস্থা", "আয়, সঞ্চয়, বাজেট ও ছোট ব্যবসার মৌলিক শিক্ষা।", teacher, catMB, CourseDifficulty.BEGINNER);
-        Course course2 = createCourseIfNotFound("BS-COM-101", "কথা বলার দক্ষতা", "Client, customer এবং team-এর সঙ্গে ভালোভাবে যোগাযোগ।", teacher, catCom, CourseDifficulty.ALL_LEVELS);
-        Course course3 = createCourseIfNotFound("BS-DIG-101", "Digital Skill", "মোবাইল, web, online tools এবং digital work-এর ভিত্তি।", teacher, catDig, CourseDifficulty.BEGINNER);
+        Course course1 = createCourseIfNotFound("BS-MB-101", "ব্যক্তিগত অর্থব্যবস্থা",
+                "আয়, সঞ্চয়, বাজেট ও ছোট ব্যবসার মৌলিক শিক্ষা।", teacher, catMB, CourseDifficulty.BEGINNER);
+        Course course2 = createCourseIfNotFound("BS-COM-101", "কথা বলার দক্ষতা",
+                "Client, customer এবং team-এর সঙ্গে ভালোভাবে যোগাযোগ।", teacher, catCom, CourseDifficulty.ALL_LEVELS);
+        Course course3 = createCourseIfNotFound("BS-DIG-101", "Digital Skill",
+                "মোবাইল, web, online tools এবং digital work-এর ভিত্তি।", teacher, catDig, CourseDifficulty.BEGINNER);
 
         // 4. Create Lessons (only if course has 0 lessons to prevent duplication)
         if (lessonRepository.count() == 0) {
-            createLesson(course1, "অর্থব্যবস্থার ভূমিকা", LessonType.VIDEO, "https://www.youtube.com/watch?v=dQw4w9WgXcQ", null, 300, 1);
+            createLesson(course1, "অর্থব্যবস্থার ভূমিকা", LessonType.VIDEO,
+                    "https://www.youtube.com/watch?v=dQw4w9WgXcQ", null, 300, 1);
             createLesson(course1, "কীভাবে বাজেট তৈরি করবেন", LessonType.TEXT, null, "First text content", 0, 2);
-            createLesson(course2, "যোগাযোগের মূলনীতি", LessonType.VIDEO, "https://www.youtube.com/watch?v=dQw4w9WgXcQ", null, 450, 1);
-            createLesson(course3, "ইন্টারনেট ব্যবহার", LessonType.VIDEO, "https://www.youtube.com/watch?v=dQw4w9WgXcQ", null, 600, 1);
+            createLesson(course2, "যোগাযোগের মূলনীতি", LessonType.VIDEO, "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+                    null, 450, 1);
+            createLesson(course3, "ইন্টারনেট ব্যবহার", LessonType.VIDEO, "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+                    null, 600, 1);
         }
     }
 
@@ -120,7 +133,8 @@ public class DummyDataSeeder implements CommandLineRunner {
         });
     }
 
-    private Course createCourseIfNotFound(String code, String title, String desc, User teacher, Category cat, CourseDifficulty difficulty) {
+    private Course createCourseIfNotFound(String code, String title, String desc, User teacher, Category cat,
+            CourseDifficulty difficulty) {
         return courseRepository.findByCourseCode(code).orElseGet(() -> {
             Course course = new Course();
             course.setCourseCode(code);
@@ -135,7 +149,8 @@ public class DummyDataSeeder implements CommandLineRunner {
         });
     }
 
-    private void createLesson(Course course, String title, LessonType type, String videoUrl, String content, int duration, int order) {
+    private void createLesson(Course course, String title, LessonType type, String videoUrl, String content,
+            int duration, int order) {
         Lesson lesson = new Lesson();
         lesson.setCourse(course);
         lesson.setTitle(title);
