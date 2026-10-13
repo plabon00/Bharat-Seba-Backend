@@ -25,6 +25,11 @@ public class AuthController {
         return ResponseEntity.ok(jwtResponse);
     }
 
+    @GetMapping("/check-email")
+    public ResponseEntity<com.learningportal.auth.dto.CheckEmailResponse> checkEmail(@RequestParam String email) {
+        return ResponseEntity.ok(authService.checkEmail(email));
+    }
+
     @PostMapping("/register")
     public ResponseEntity<?> registerUser(@Valid @RequestBody RegisterRequest registerRequest) {
         authService.register(registerRequest);

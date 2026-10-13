@@ -1,5 +1,6 @@
 package com.learningportal.auth.service;
 
+import com.learningportal.auth.dto.CheckEmailResponse;
 import com.learningportal.auth.dto.JwtResponse;
 import com.learningportal.auth.dto.LoginRequest;
 import com.learningportal.auth.dto.RegisterRequest;
@@ -57,7 +58,7 @@ public class AuthService {
     public void register(RegisterRequest registerRequest) {
         String normalizedEmail = registerRequest.email() != null ? registerRequest.email().trim().toLowerCase() : "";
         if (userRepository.existsByEmailIgnoreCase(normalizedEmail)) {
-            throw new BadRequestException("Error: Email is already in use!");
+            throw new BadRequestException("An account with this email already exists. Please log in instead.");
         }
 
         User user = new User();
@@ -70,8 +71,20 @@ public class AuthService {
         try {
             userRepository.save(user);
         } catch (DataIntegrityViolationException ex) {
-            throw new BadRequestException("Error: Email is already in use!");
+            throw new BadRequestException("An account with this email already exists. Please log in instead.");
         }
+    }
+
+    public CheckEmailResponse checkEmail(String email) {
+        if (email == null || email.trim().isEmpty()) {
+            return new CheckEmailResponse(false, "", "Email is required");
+        }
+        String normalizedEmail = email.trim().toLowerCase();
+        boolean exists = userRepository.existsByEmailIgnoreCase(normalizedEmail);
+        String message = exists
+                ? "An account with this email already exists. Please log in instead."
+                : "Email is available.";
+        return new CheckEmailResponse(exists, normalizedEmail, message);
     }
 
     public void forgotPassword(String email) {
