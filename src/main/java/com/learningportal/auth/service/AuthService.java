@@ -14,6 +14,7 @@ import com.learningportal.user.repository.UserRepository;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseToken;
 import com.learningportal.auth.dto.FirebaseLoginRequest;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -38,8 +39,9 @@ public class AuthService {
     }
 
     public JwtResponse login(LoginRequest loginRequest) {
+        String normalizedEmail = loginRequest.email() != null ? loginRequest.email().trim().toLowerCase() : "";
         Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(loginRequest.email(), loginRequest.password())
+                new UsernamePasswordAuthenticationToken(normalizedEmail, loginRequest.password())
         );
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
@@ -50,32 +52,36 @@ public class AuthService {
         String role = userDetails.getAuthorities().iterator().next().getAuthority();
 
         return new JwtResponse(jwt, userDetails.getId(), userDetails.getUsername(), userDetails.getFullName(), role);
-        // Better way to get full name is from User entity, but let's just query or add it to CustomUserDetails
     }
 
     public void register(RegisterRequest registerRequest) {
-        if (userRepository.existsByEmail(registerRequest.email())) {
+        String normalizedEmail = registerRequest.email() != null ? registerRequest.email().trim().toLowerCase() : "";
+        if (userRepository.existsByEmailIgnoreCase(normalizedEmail)) {
             throw new BadRequestException("Error: Email is already in use!");
         }
 
-
-
         User user = new User();
-        user.setFullName(registerRequest.fullName());
-        user.setEmail(registerRequest.email().toLowerCase());
+        user.setFullName(registerRequest.fullName() != null ? registerRequest.fullName().trim() : "");
+        user.setEmail(normalizedEmail);
         user.setPasswordHash(passwordEncoder.encode(registerRequest.password()));
         user.setRole(UserRole.USER);
         user.setAccountStatus(UserStatus.ACTIVE);
 
-        userRepository.save(user);
+        try {
+            userRepository.save(user);
+        } catch (DataIntegrityViolationException ex) {
+            throw new BadRequestException("Error: Email is already in use!");
+        }
     }
 
     public void forgotPassword(String email) {
-        System.out.println("Password reset requested for: " + email);
+        String normalizedEmail = email != null ? email.trim().toLowerCase() : "";
+        System.out.println("Password reset requested for: " + normalizedEmail);
     }
 
     public void resetPassword(String token, String newPassword) {
-        userRepository.findByEmail(token.toLowerCase().trim()).ifPresent(user -> {
+        String normalized = token != null ? token.trim().toLowerCase() : "";
+        userRepository.findByEmailIgnoreCase(normalized).ifPresent(user -> {
             user.setPasswordHash(passwordEncoder.encode(newPassword));
             userRepository.save(user);
         });
@@ -89,24 +95,32 @@ public class AuthService {
             String uid = decodedToken.getUid();
             String name = decodedToken.getName() != null ? decodedToken.getName() : request.displayName();
 
-            if (email == null) {
+            if (email == null || email.trim().isEmpty()) {
                 throw new UnauthorizedException("Firebase token does not contain an email");
             }
 
-            // Check if user exists
-            User user = userRepository.findByEmail(email).orElse(null);
+            String normalizedEmail = email.trim().toLowerCase();
+
+            // Check if user exists (case-insensitive and trimmed)
+            User user = userRepository.findByEmailIgnoreCase(normalizedEmail).orElse(null);
             if (user == null) {
                 // Register user
                 user = new User();
-                user.setEmail(email.toLowerCase());
-                user.setFullName(name != null && !name.isEmpty() ? name : "Firebase User");
+                user.setEmail(normalizedEmail);
+                user.setFullName(name != null && !name.trim().isEmpty() ? name.trim() : "Firebase User");
                 user.setPasswordHash(passwordEncoder.encode(uid)); // random password placeholder
                 
                 UserRole assignedRole = UserRole.USER;
                 user.setRole(assignedRole);
                 
                 user.setAccountStatus(UserStatus.ACTIVE);
-                user = userRepository.save(user);
+                try {
+                    user = userRepository.save(user);
+                } catch (DataIntegrityViolationException ex) {
+                    // Fallback in case of concurrent first-time registration
+                    user = userRepository.findByEmailIgnoreCase(normalizedEmail)
+                            .orElseThrow(() -> new BadRequestException("Failed to register user."));
+                }
             }
 
             // Authenticate and generate JWT

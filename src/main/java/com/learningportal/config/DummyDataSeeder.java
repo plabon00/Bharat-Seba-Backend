@@ -103,7 +103,8 @@ public class DummyDataSeeder implements CommandLineRunner {
     }
 
     private User createUserIfNotFound(String name, String email, String passwordHash, UserRole role) {
-        return userRepository.findByEmail(email).map(user -> {
+        String normalizedEmail = email != null ? email.trim().toLowerCase() : "";
+        return userRepository.findByEmailIgnoreCase(normalizedEmail).map(user -> {
             if (role == UserRole.ADMIN) {
                 user.setRole(UserRole.ADMIN);
             }
@@ -112,8 +113,8 @@ public class DummyDataSeeder implements CommandLineRunner {
             return userRepository.save(user);
         }).orElseGet(() -> {
             User user = new User();
-            user.setFullName(name);
-            user.setEmail(email);
+            user.setFullName(name != null ? name.trim() : "");
+            user.setEmail(normalizedEmail);
             user.setPasswordHash(passwordHash);
             user.setRole(role);
             user.setAccountStatus(UserStatus.ACTIVE);

@@ -47,9 +47,20 @@ public class User {
     public UUID getId() { return id; }
     public void setId(UUID id) { this.id = id; }
     public String getFullName() { return fullName; }
-    public void setFullName(String fullName) { this.fullName = fullName; }
+    public void setFullName(String fullName) { this.fullName = fullName != null ? fullName.trim() : null; }
     public String getEmail() { return email; }
-    public void setEmail(String email) { this.email = email; }
+    public void setEmail(String email) { this.email = email != null ? email.trim().toLowerCase() : null; }
+
+    @PrePersist
+    @PreUpdate
+    public void normalize() {
+        if (this.email != null) {
+            this.email = this.email.trim().toLowerCase();
+        }
+        if (this.fullName != null) {
+            this.fullName = this.fullName.trim();
+        }
+    }
     public String getPasswordHash() { return passwordHash; }
     public void setPasswordHash(String passwordHash) { this.passwordHash = passwordHash; }
     public UserRole getRole() { return role; }
