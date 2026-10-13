@@ -35,12 +35,12 @@ public class AdminController {
 
     @GetMapping("/courses")
     public ResponseEntity<Page<CourseResponse>> getCourses(@PageableDefault(size = 20) Pageable pageable) {
-        return ResponseEntity.ok(courseRepository.findAll(pageable).map(CourseResponse::fromEntity));
+        return ResponseEntity.ok(adminService.getCourses(pageable));
     }
 
     @GetMapping("/courses/pending")
     public ResponseEntity<Page<CourseResponse>> getPendingCourses(@PageableDefault(size = 20) Pageable pageable) {
-        return ResponseEntity.ok(courseRepository.findByStatus(CourseStatus.PENDING_REVIEW, pageable).map(CourseResponse::fromEntity));
+        return ResponseEntity.ok(adminService.getPendingCourses(pageable));
     }
 
     @PostMapping("/courses/{id}/approve")

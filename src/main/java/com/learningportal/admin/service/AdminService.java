@@ -6,6 +6,7 @@ import com.learningportal.category.entity.Category;
 import com.learningportal.category.repository.CategoryRepository;
 import com.learningportal.common.exception.BadRequestException;
 import com.learningportal.common.exception.ResourceNotFoundException;
+import com.learningportal.course.dto.CourseResponse;
 import com.learningportal.course.entity.Course;
 import com.learningportal.course.enums.CourseStatus;
 import com.learningportal.course.repository.CourseRepository;
@@ -14,6 +15,8 @@ import com.learningportal.user.repository.UserRepository;
 import com.learningportal.enrollment.repository.EnrollmentRepository;
 import com.learningportal.lesson.repository.LessonRepository;
 import com.learningportal.auth.repository.RefreshSessionRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -44,6 +47,16 @@ public class AdminService {
         this.enrollmentRepository = enrollmentRepository;
         this.lessonRepository = lessonRepository;
         this.refreshSessionRepository = refreshSessionRepository;
+    }
+
+    @Transactional(readOnly = true)
+    public Page<CourseResponse> getCourses(Pageable pageable) {
+        return courseRepository.findAll(pageable).map(CourseResponse::fromEntity);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<CourseResponse> getPendingCourses(Pageable pageable) {
+        return courseRepository.findByStatus(CourseStatus.PENDING_REVIEW, pageable).map(CourseResponse::fromEntity);
     }
 
     public void approveCourse(UUID courseId) {

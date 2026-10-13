@@ -13,14 +13,17 @@ public record CourseResponse(
         String description,
         String thumbnailUrl,
         String teacherName,
+        String teacherEmail,
         String categoryName,
         String categorySlug,
         CourseDifficulty difficulty,
         CourseStatus status,
+        java.time.ZonedDateTime submittedAt,
         java.time.ZonedDateTime publishedAt
 ) {
     public static CourseResponse fromEntity(Course course) {
         String teacherName = course.getTeacher() != null ? course.getTeacher().getFullName() : "Instructor";
+        String teacherEmail = course.getTeacher() != null ? course.getTeacher().getEmail() : null;
         String categoryName = course.getCategory() != null ? course.getCategory().getName() : "General";
         String categorySlug = course.getCategory() != null ? course.getCategory().getSlug() : "general";
         return new CourseResponse(
@@ -30,10 +33,12 @@ public record CourseResponse(
                 course.getDescription(),
                 course.getThumbnailUrl(),
                 teacherName,
+                teacherEmail,
                 categoryName,
                 categorySlug,
                 course.getDifficulty(),
                 course.getStatus(),
+                course.getSubmittedAt(),
                 course.getPublishedAt()
         );
     }

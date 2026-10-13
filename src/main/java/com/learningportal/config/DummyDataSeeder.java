@@ -56,6 +56,7 @@ public class DummyDataSeeder implements CommandLineRunner {
         createUserIfNotFound("Admin Two", "admin2@example.com", passwordHash, UserRole.ADMIN);
         createUserIfNotFound("Admin Three", "admin3@example.com", passwordHash, UserRole.ADMIN);
         createUserIfNotFound("Admin User", "admin@example.com", passwordHash, UserRole.ADMIN);
+        createUserIfNotFound("Plaban Sarkar", "sarkarplabon576@gmail.com", passwordHash, UserRole.ADMIN);
 
         User teacher = createUserIfNotFound("Ravi Teacher", "teacher@example.com", passwordHash, UserRole.USER);
         User student = createUserIfNotFound("Ananya Learner", "student@example.com", passwordHash, UserRole.USER);
