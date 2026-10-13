@@ -56,14 +56,31 @@ public class AdminService {
 
     @Transactional(readOnly = true)
     public Page<CourseResponse> getPendingCourses(Pageable pageable) {
-        return courseRepository.findByStatus(CourseStatus.PENDING_REVIEW, pageable).map(CourseResponse::fromEntity);
+        return courseRepository.findByStatusIn(
+                List.of(CourseStatus.PENDING_REVIEW, CourseStatus.CHANGES_REQUESTED),
+                pageable
+        ).map(CourseResponse::fromEntity);
+    }
+
+    @Transactional(readOnly = true)
+    public AdminCoursePreviewResponse getCoursePreview(UUID courseId) {
+        Course course = courseRepository.findById(courseId)
+                .orElseThrow(() -> new ResourceNotFoundException("Course not found: " + courseId));
+        List<com.learningportal.lesson.dto.LessonResponse> lessons = lessonRepository
+                .findByCourseIdOrderByDisplayOrderAsc(courseId)
+                .stream()
+                .map(com.learningportal.lesson.dto.LessonResponse::fromEntity)
+                .toList();
+        return AdminCoursePreviewResponse.fromEntity(course, lessons);
     }
 
     public void approveCourse(UUID courseId) {
         Course course = courseRepository.findById(courseId)
                 .orElseThrow(() -> new ResourceNotFoundException("Course not found"));
-        if (course.getStatus() != CourseStatus.PENDING_REVIEW && course.getStatus() != CourseStatus.DRAFT) {
-            throw new BadRequestException("Only PENDING_REVIEW or DRAFT courses can be approved.");
+        if (course.getStatus() != CourseStatus.PENDING_REVIEW && 
+            course.getStatus() != CourseStatus.DRAFT && 
+            course.getStatus() != CourseStatus.CHANGES_REQUESTED) {
+            throw new BadRequestException("Only PENDING_REVIEW, DRAFT, or CHANGES_REQUESTED courses can be approved.");
         }
         course.setStatus(CourseStatus.PUBLISHED);
         course.setPublishedAt(ZonedDateTime.now());
@@ -74,10 +91,26 @@ public class AdminService {
     public void rejectCourse(UUID courseId, RejectCourseRequest request) {
         Course course = courseRepository.findById(courseId)
                 .orElseThrow(() -> new ResourceNotFoundException("Course not found"));
-        if (course.getStatus() != CourseStatus.PENDING_REVIEW && course.getStatus() != CourseStatus.DRAFT) {
-            throw new BadRequestException("Only PENDING_REVIEW or DRAFT courses can be rejected.");
+        if (course.getStatus() != CourseStatus.PENDING_REVIEW && 
+            course.getStatus() != CourseStatus.DRAFT && 
+            course.getStatus() != CourseStatus.CHANGES_REQUESTED) {
+            throw new BadRequestException("Only PENDING_REVIEW, DRAFT, or CHANGES_REQUESTED courses can be rejected.");
         }
         course.setStatus(CourseStatus.REJECTED);
+        course.setRejectionReason(request.reason());
+        courseRepository.save(course);
+    }
+
+    public void requestChanges(UUID courseId, RequestChangesRequest request) {
+        Course course = courseRepository.findById(courseId)
+                .orElseThrow(() -> new ResourceNotFoundException("Course not found: " + courseId));
+        if (course.getStatus() != CourseStatus.PENDING_REVIEW && 
+            course.getStatus() != CourseStatus.DRAFT && 
+            course.getStatus() != CourseStatus.CHANGES_REQUESTED &&
+            course.getStatus() != CourseStatus.REJECTED) {
+            throw new BadRequestException("Cannot request changes on a published or archived course.");
+        }
+        course.setStatus(CourseStatus.CHANGES_REQUESTED);
         course.setRejectionReason(request.reason());
         courseRepository.save(course);
     }

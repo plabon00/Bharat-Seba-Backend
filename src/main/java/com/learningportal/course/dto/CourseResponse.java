@@ -18,6 +18,7 @@ public record CourseResponse(
         String categorySlug,
         CourseDifficulty difficulty,
         CourseStatus status,
+        String rejectionReason,
         java.time.ZonedDateTime submittedAt,
         java.time.ZonedDateTime publishedAt
 ) {
@@ -38,6 +39,7 @@ public record CourseResponse(
                 categorySlug,
                 course.getDifficulty(),
                 course.getStatus(),
+                course.getRejectionReason(),
                 course.getSubmittedAt(),
                 course.getPublishedAt()
         );

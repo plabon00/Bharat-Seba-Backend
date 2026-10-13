@@ -43,6 +43,11 @@ public class AdminController {
         return ResponseEntity.ok(adminService.getPendingCourses(pageable));
     }
 
+    @GetMapping("/courses/{id}/preview")
+    public ResponseEntity<AdminCoursePreviewResponse> getCoursePreview(@PathVariable UUID id) {
+        return ResponseEntity.ok(adminService.getCoursePreview(id));
+    }
+
     @PostMapping("/courses/{id}/approve")
     public ResponseEntity<Void> approveCourse(@PathVariable UUID id) {
         adminService.approveCourse(id);
@@ -54,6 +59,14 @@ public class AdminController {
             @PathVariable UUID id,
             @Valid @RequestBody RejectCourseRequest request) {
         adminService.rejectCourse(id, request);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/courses/{id}/request-changes")
+    public ResponseEntity<Void> requestChanges(
+            @PathVariable UUID id,
+            @Valid @RequestBody RequestChangesRequest request) {
+        adminService.requestChanges(id, request);
         return ResponseEntity.ok().build();
     }
 

@@ -101,8 +101,10 @@ public class TeacherCourseService {
 
     public void submitCourse(UUID teacherId, UUID courseId) {
         Course course = getTeacherCourse(teacherId, courseId);
-        if (course.getStatus() != CourseStatus.DRAFT && course.getStatus() != CourseStatus.REJECTED) {
-            throw new BadRequestException("Only DRAFT or REJECTED courses can be submitted.");
+        if (course.getStatus() != CourseStatus.DRAFT && 
+            course.getStatus() != CourseStatus.REJECTED && 
+            course.getStatus() != CourseStatus.CHANGES_REQUESTED) {
+            throw new BadRequestException("Only DRAFT, REJECTED, or CHANGES_REQUESTED courses can be submitted.");
         }
 
         course.setStatus(CourseStatus.PENDING_REVIEW);
@@ -134,6 +136,9 @@ public class TeacherCourseService {
 
     public LessonResponse addLesson(UUID teacherId, UUID courseId, CreateLessonRequest request) {
         Course course = getTeacherCourse(teacherId, courseId);
+        if (course.getStatus() == CourseStatus.PENDING_REVIEW) {
+            throw new BadRequestException("Cannot add lessons while the course is pending review.");
+        }
         validateLessonContent(request.lessonType(), request.videoUrl(), request.contentText());
 
         List<Lesson> existingLessons = lessonRepository.findByCourseIdOrderByDisplayOrderAsc(courseId);
@@ -156,6 +161,9 @@ public class TeacherCourseService {
 
     public LessonResponse updateLesson(UUID teacherId, UUID courseId, UUID lessonId, UpdateLessonRequest request) {
         Course course = getTeacherCourse(teacherId, courseId);
+        if (course.getStatus() == CourseStatus.PENDING_REVIEW) {
+            throw new BadRequestException("Cannot edit lessons while the course is pending review.");
+        }
         Lesson lesson = lessonRepository.findByIdAndCourseId(lessonId, courseId)
                 .orElseThrow(() -> new ResourceNotFoundException("Lesson not found"));
 
@@ -175,11 +183,13 @@ public class TeacherCourseService {
 
     public void deleteLesson(UUID teacherId, UUID courseId, UUID lessonId) {
         Course course = getTeacherCourse(teacherId, courseId);
+        if (course.getStatus() == CourseStatus.PENDING_REVIEW) {
+            throw new BadRequestException("Cannot delete lessons while the course is pending review.");
+        }
         Lesson lesson = lessonRepository.findByIdAndCourseId(lessonId, courseId)
                 .orElseThrow(() -> new ResourceNotFoundException("Lesson not found"));
 
         lessonRepository.delete(lesson);
-        // Might need to reorder remaining lessons, skipped for brevity or do it via a reorder endpoint
     }
 
     public List<LessonResponse> getLessons(UUID teacherId, UUID courseId) {

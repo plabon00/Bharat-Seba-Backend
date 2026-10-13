@@ -22,10 +22,17 @@ public interface CourseRepository extends JpaRepository<Course, UUID> {
 
     @Override
     @EntityGraph(attributePaths = {"teacher", "category"})
+    Optional<Course> findById(UUID id);
+
+    @Override
+    @EntityGraph(attributePaths = {"teacher", "category"})
     Page<Course> findAll(Pageable pageable);
 
     @EntityGraph(attributePaths = {"teacher", "category"})
     Page<Course> findByStatus(CourseStatus status, Pageable pageable);
+
+    @EntityGraph(attributePaths = {"teacher", "category"})
+    Page<Course> findByStatusIn(java.util.Collection<CourseStatus> statuses, Pageable pageable);
 
     @EntityGraph(attributePaths = {"teacher", "category"})
     Page<Course> findByTeacherId(UUID teacherId, Pageable pageable);
